@@ -7,7 +7,7 @@ class InicioScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.teal,
         title: const Text(
-          'Animales Encontrados',
+          'Huellas Perdidas',
           style: TextStyle(color: Colors.white), // Texto en blanco
         ),
         iconTheme: const IconThemeData(color: Colors.white), // Icono en blanco

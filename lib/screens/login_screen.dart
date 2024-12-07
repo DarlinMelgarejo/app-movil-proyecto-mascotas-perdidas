@@ -1,7 +1,56 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import '../navegacion.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController dniController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService authService = AuthService();
+  bool isLoading = false;
+  bool rememberMe = false;
+  Future<void> _login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final dni = dniController.text.trim(); // .trim() para eliminar espacios
+    final password = passwordController.text.trim(); // .trim() para eliminar espacios
+
+    if (dni.isEmpty || password.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      _showMessage('Por favor, completa todos los campos.');
+      return;
+    }
+
+    final response = await authService.logear(dni, password, rememberMe);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (response['success']) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavBar()),
+      );
+    } else {
+      _showMessage(response['message']);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +77,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24.0),
                 TextField(
+                  controller: dniController,
                   decoration: InputDecoration(
                     labelText: 'DNI',
                     hintText: '70202030',
@@ -40,6 +90,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 TextField(
+                  controller: passwordController,
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     border: OutlineInputBorder(
@@ -49,19 +100,27 @@ class LoginScreen extends StatelessWidget {
                   ),
                   obscureText: true,
                 ),
+                SizedBox(height: 16.0),
+                CheckboxListTile(
+                  title: Text("Recordarme"),
+                  value: rememberMe,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      rememberMe = value!;
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
                 SizedBox(height: 24.0),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BottomNavBar(),
-                        ),
-                      );
-                    },
-                    child: Text('Iniciar Sesión'),
+                    onPressed: isLoading ? null : _login,
+                    child: isLoading
+                        ? CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        : Text('Iniciar Sesión'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal,
                       padding: EdgeInsets.symmetric(vertical: 16.0),
