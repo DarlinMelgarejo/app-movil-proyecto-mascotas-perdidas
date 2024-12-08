@@ -14,7 +14,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   // Lista de páginas que se mostrarán al presionar los botones
   final List<Widget> _pages = [
     InicioScreen(),
-    ReportAnimalScreen(),
+    ReportarScreen(),
     PerfilScreen(),
   ];
 
